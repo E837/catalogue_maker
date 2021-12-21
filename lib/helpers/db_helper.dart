@@ -7,20 +7,45 @@ class DBHelper {
     Database database = await openDatabase(
         path.join(dbPath, 'catalogue_maker.db'), onCreate: (db, version) async {
       await db.execute(
-          'CREATE TABLE product(id TEXT PRIMARY KEY, properties TEXT, price REAL, alterImages TEXT, mainImg TEXT)');
+          'CREATE TABLE product(id TEXT PRIMARY KEY, properties TEXT, price TEXT, alterImages TEXT, mainImg TEXT)');
       await db.execute(
-          'CREATE TABLE project(id TEXT PRIMARY KEY, products TEXT, properties TEXT, status REAL, creationDate TEXT, logoImage TEXT, description TEXT)');
+          'CREATE TABLE project(id TEXT PRIMARY KEY, products TEXT, properties TEXT, status TEXT, creationDate TEXT, logoImage TEXT, description TEXT)');
     }, version: 1);
     return database;
   }
 
   static Future<void> insert(
-      String tableName, Map<String, dynamic> values) async {
-    final db = await database();
+      String tableName, Map<String, String> values) async {
+    final db = await DBHelper.database();
     db.insert(
       tableName,
       values,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  static Future<void> update(
+      String tableName, Map<String, String> values) async {
+    final db = await DBHelper.database();
+    db.update(
+      tableName,
+      values,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<List<Map<String, String>>> getData(String tableName) async {
+    final db = await DBHelper.database();
+    final data = await db.query(tableName);
+    final result = data.map((mapItem) {
+      return mapItem.map((key, value) => MapEntry(key, value.toString()));
+    }).toList();
+    // print('$tableName: $result');
+    return result;
+  }
+
+  static Future<void> delete(String tableName, String id) async {
+    final db = await DBHelper.database();
+    await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
 }

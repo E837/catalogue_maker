@@ -24,19 +24,39 @@ class ProjectItem extends StatelessWidget {
     // Provider.of<Product>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      child: Card(
-        child: ListTile(
-          leading: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: _setImages(project),
+      child: Dismissible(
+        key: ValueKey(project.id),
+        background: Card(
+          color: Theme.of(context).errorColor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Icon(Icons.delete),
+                Icon(Icons.delete),
+              ],
+            ),
           ),
-          trailing: Text(DateFormat.yMd().format(project.creationDate)),
-          // here we are providing "project" again to handle provider page scoping
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (ctx) => ChangeNotifierProvider<Project>.value(
-                value: project,
-                child: ProductsOverviewScreen(),
+        ),
+        onDismissed: (direction) {
+          Provider.of<Projects>(context, listen: false)
+              .removeProject(project.id);
+        },
+        child: Card(
+          child: ListTile(
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: _setImages(project),
+            ),
+            trailing: Text(DateFormat.yMd().format(project.creationDate)),
+            // here we are providing "project" again to handle provider page scoping
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (ctx) => ChangeNotifierProvider<Project>.value(
+                  value: project,
+                  child: ProductsOverviewScreen(),
+                ),
               ),
             ),
           ),

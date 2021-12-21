@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:uuid/uuid.dart';
 
+import '../helpers/db_helper.dart';
+
 //todo: specify a status percent for every product so we can calculate the status of the project by this formula => sum of prods stat / prodsCount*100
 class Product with ChangeNotifier {
   final String _id;
@@ -25,13 +27,24 @@ class Product with ChangeNotifier {
         _mainImg = mainImg;
 
   static Product emptyProduct(List<String> keys) {
-    return Product(
+    final product = Product(
       id: const Uuid().v1(),
       properties: {for (var k in keys) k: ''},
       price: 0.0,
       alterImages: [],
       mainImg: File(''),
     );
+    // inserting the new product into sqlite DB
+    final propertiesAsJson = json.encode(product.properties);
+    final Map<String, String> productAsMap = {
+      'id': product.id,
+      'properties': propertiesAsJson,
+      'price': product.price.toString(),
+      'alterImages': json.encode(product.alterImages),
+      'mainImg': product.mainImg.path,
+    };
+    DBHelper.insert('product', productAsMap);
+    return product;
   }
 
   String get id {
