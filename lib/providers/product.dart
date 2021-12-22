@@ -35,16 +35,20 @@ class Product with ChangeNotifier {
       mainImg: File(''),
     );
     // inserting the new product into sqlite DB
+    DBHelper.insert('product', productAsMap(product));
+    return product;
+  }
+
+  static Map<String, String> productAsMap(Product product) {
     final propertiesAsJson = json.encode(product.properties);
-    final Map<String, String> productAsMap = {
+    final alterImagesPaths = product.alterImages.map((e) => e.path).toList();
+    return {
       'id': product.id,
       'properties': propertiesAsJson,
       'price': product.price.toString(),
-      'alterImages': json.encode(product.alterImages),
+      'alterImages': json.encode(alterImagesPaths),
       'mainImg': product.mainImg.path,
     };
-    DBHelper.insert('product', productAsMap);
-    return product;
   }
 
   String get id {
@@ -67,21 +71,14 @@ class Product with ChangeNotifier {
     return _mainImg;
   }
 
-  void setProdInfo(Map<String, String> props) {
+  Future<void> setProdInfo(Map<String, String> props) async {
     _price = double.tryParse(props['price']!) ?? 0;
     final keys = _properties.keys.toList();
     for (String key in keys) {
       _properties[key] = props[key] ?? '';
     }
     notifyListeners();
-    // print(props.runtimeType);
-    // print(props);
-    // final _json = json.encode(props);
-    // print(_json.runtimeType);
-    // print(_json);
-    // final decoded = json.decode(_json);
-    // print(decoded.runtimeType);
-    // print(decoded);
+    await DBHelper.update('product', productAsMap(this), _id);
   }
 
   void addAlterImage(File file) {

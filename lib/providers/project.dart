@@ -41,11 +41,6 @@ class Project with ChangeNotifier {
 
   List<Product> get products => List.unmodifiable(_products);
 
-  set products(List<Product> value) {
-    _products = value;
-    notifyListeners();
-  }
-
   List<String> get properties => _properties;
 
   double get status => _status;
@@ -62,20 +57,19 @@ class Project with ChangeNotifier {
   void removeProduct(String id) {
     _products.removeWhere((element) => element.id == id);
     notifyListeners();
+    DBHelper.delete('product', id);
+    DBHelper.update('project', Projects.projectAsMap(this), _id);
   }
 
   File get logoImage => _logoImage;
 
-  set logoImage(File value) {
-    _logoImage = value;
-    notifyListeners();
-  }
-
   String get description => _description;
 
-  set description(String value) {
-    _description = value;
+  Future<void> saveProjectSettings(File image, String description) async {
+    _logoImage = image;
+    _description = description;
     notifyListeners();
+    await DBHelper.update('project', Projects.projectAsMap(this), _id);
   }
 
   void changeThumbs() {
@@ -109,11 +103,16 @@ class Projects with ChangeNotifier {
 
   static void _updateSqlite(Project project, UpdateMethod updateMethod) {
     // inserting the new project into sqlite DB
-    //todo: this re-writing the whole database is not efficient at all since we are doing this with every single product changing, so we should only update one item
+    updateMethod == UpdateMethod.insert
+        ? DBHelper.insert('project', projectAsMap(project))
+        : DBHelper.update('project', projectAsMap(project), project.id);
+  }
+
+  static Map<String, String> projectAsMap(Project project) {
     final propertiesAsJson = json.encode(project.properties);
     final productsIdsAsList = project.products.map((e) => e.id).toList();
     final productsIdsAsJson = json.encode(productsIdsAsList);
-    final Map<String, String> projectAsMap = {
+    return {
       'id': project.id,
       'products': productsIdsAsJson,
       'properties': propertiesAsJson,
@@ -122,9 +121,6 @@ class Projects with ChangeNotifier {
       'logoImage': project.logoImage.path,
       'description': project.description,
     };
-    updateMethod == UpdateMethod.insert
-        ? DBHelper.insert('project', projectAsMap)
-        : DBHelper.update('project', projectAsMap);
   }
 
   Future<void> fetchAndSetData() async {
@@ -158,8 +154,10 @@ class Projects with ChangeNotifier {
         properties: Map<String, String>.from(
             json.decode(thisMapProduct['properties'] ?? '{"": ""}')),
         price: double.parse(thisMapProduct['price'] ?? '0'),
-        alterImages:
-            List<File>.from(json.decode(thisMapProduct['alterImages'] ?? '[]')),
+        alterImages: (List<String>.from(
+                json.decode(thisMapProduct['alterImages'] ?? '[]')))
+            .map((e) => File(e))
+            .toList(),
         mainImg: File(thisMapProduct['mainImg'] ?? ''),
       ));
     }
@@ -168,9 +166,18 @@ class Projects with ChangeNotifier {
   }
 
   void removeProject(String id) {
+    // finding products of the project before deleting the project
+    final _thisProject = _projects.firstWhere((element) => element.id == id);
+    final _productIds =
+        _thisProject.products.map((product) => product.id).toList();
+    // updating the provider and the UI
     _projects.removeWhere((element) => element.id == id);
     notifyListeners();
-    // deleting the project from sqlite
+    // deleting the products of the project from sqlite
+    for (String productId in _productIds) {
+      DBHelper.delete('product', productId);
+    }
+    // deleting the project itself from sqlite
     DBHelper.delete('project', id);
   }
 }

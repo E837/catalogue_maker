@@ -25,12 +25,13 @@ class DBHelper {
   }
 
   static Future<void> update(
-      String tableName, Map<String, String> values) async {
+      String tableName, Map<String, String> values, String id) async {
     final db = await DBHelper.database();
     db.update(
       tableName,
       values,
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 
@@ -40,12 +41,19 @@ class DBHelper {
     final result = data.map((mapItem) {
       return mapItem.map((key, value) => MapEntry(key, value.toString()));
     }).toList();
-    // print('$tableName: $result');
+    print('$tableName: $result');
+    // db.delete('product');
+    // db.delete('project');
     return result;
   }
 
   static Future<void> delete(String tableName, String id) async {
     final db = await DBHelper.database();
     await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
+    //todo: deletion is incomplete(on product deletion, project table should be updated and vice versa)
+    //todo: the solution is to fix update method to only update a row or even a single cell
+    if (tableName == 'product') {
+      // await DBHelper.update('project',);
+    }
   }
 }

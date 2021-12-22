@@ -91,6 +91,13 @@ class EditProductScreen extends StatelessWidget {
     }
   }
 
+  Future<void> saveData(Product product) async {
+    if (_form.currentState!.validate()) {
+      _form.currentState!.save();
+      product.setProdInfo(_userInput);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final _product = Provider.of<Product>(context);
@@ -103,7 +110,8 @@ class EditProductScreen extends StatelessWidget {
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: FloatingActionButton(
-                onPressed: () {
+                onPressed: () async {
+                  await saveData(_product);
                   Navigator.of(context).pop();
                 },
                 child: const Icon(Icons.arrow_back),
@@ -167,7 +175,10 @@ class EditProductScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Form(
                   key: _form,
-                  //todo: implement 'onWillPop' arg here
+                  onWillPop: () async {
+                    await saveData(_product);
+                    return true;
+                  },
                   child: Column(
                     children: [
                       const Text('Properties'),
@@ -240,14 +251,12 @@ class EditProductScreen extends StatelessWidget {
                           Expanded(
                             flex: 2,
                             child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  primary: Theme.of(context).errorColor),
                               onPressed: () {
-                                if (_form.currentState!.validate()) {
-                                  _form.currentState!.save();
-                                  _product.setProdInfo(_userInput);
-                                  Navigator.of(context).pop();
-                                }
+                                Navigator.of(context).pop();
                               },
-                              child: const Text('Save'),
+                              child: const Text('Discard changes'),
                             ),
                           ),
                         ],
