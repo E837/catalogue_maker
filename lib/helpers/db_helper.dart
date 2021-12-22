@@ -50,8 +50,6 @@ class DBHelper {
   static Future<void> delete(String tableName, String id) async {
     final db = await DBHelper.database();
     await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
-    //todo: deletion is incomplete(on product deletion, project table should be updated and vice versa)
-    //todo: the solution is to fix update method to only update a row or even a single cell
     if (tableName == 'product') {
       // await DBHelper.update('project',);
     }
