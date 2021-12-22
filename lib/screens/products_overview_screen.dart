@@ -8,7 +8,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
 
 import '../providers/project.dart';
 import '../providers/product.dart';
@@ -37,9 +36,9 @@ class ProductsOverviewScreen extends StatelessWidget {
       ),
     );
     // second step - saving the pdf in the storage
-    final output = await getTemporaryDirectory();
-    final file = File("${output.path}/example.pdf");
-    await file.writeAsBytes(await pdf.save());
+    final directory = await getApplicationDocumentsDirectory();
+    final pdfFile = File("${directory.path}/catalogue.pdf");
+    await pdfFile.writeAsBytes(await pdf.save());
     // last step - showing the pdf
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -143,9 +142,7 @@ class ProductsOverviewScreen extends StatelessWidget {
                     width: 180,
                     child: project.logoImage.path != ''
                         ? pw.Image(pw.MemoryImage(
-                            (await rootBundle.load(project.logoImage.path))
-                                .buffer
-                                .asUint8List()))
+                            File(project.logoImage.path).readAsBytesSync()))
                         : null,
                   ),
                   pw.SizedBox(height: 10),
@@ -183,18 +180,18 @@ class ProductsOverviewScreen extends StatelessWidget {
   }
 
   Future<pw.ImageProvider> _provideMainImage(Product product) async {
-    return pw.MemoryImage((await rootBundle.load(product.mainImg.path == ''
-            ? 'assets/images/empty.jpg'
-            : product.mainImg.path))
-        .buffer
-        .asUint8List());
+    if (product.mainImg.path == '') {
+      return pw.MemoryImage((await rootBundle.load('assets/images/empty.jpg'))
+          .buffer
+          .asUint8List());
+    }
+    return pw.MemoryImage(File(product.mainImg.path).readAsBytesSync());
   }
 
   Future<List<pw.ImageProvider>> _provideAlterImages(Product product) async {
     List<pw.ImageProvider> result = [];
     for (File alterImage in product.alterImages) {
-      result.add(pw.MemoryImage(
-          (await rootBundle.load(alterImage.path)).buffer.asUint8List()));
+      result.add(pw.MemoryImage(File(alterImage.path).readAsBytesSync()));
     }
     return result;
   }

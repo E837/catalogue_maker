@@ -41,9 +41,7 @@ class DBHelper {
     final result = data.map((mapItem) {
       return mapItem.map((key, value) => MapEntry(key, value.toString()));
     }).toList();
-    print('$tableName: $result');
-    // db.delete('product');
-    // db.delete('project');
+    // print('$tableName: $result');
     return result;
   }
 
