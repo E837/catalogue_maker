@@ -33,6 +33,7 @@ class ProjectItem extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
+                // there are two icons, one for left and another for the right side
                 Icon(Icons.delete),
                 Icon(Icons.delete),
               ],

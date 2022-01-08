@@ -110,6 +110,8 @@ class EditProductScreen extends StatelessWidget {
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: FloatingActionButton(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
                 onPressed: () async {
                   await saveData(_product);
                   Navigator.of(context).pop();
@@ -250,13 +252,14 @@ class EditProductScreen extends StatelessWidget {
                           const SizedBox(width: 10),
                           Expanded(
                             flex: 2,
-                            child: ElevatedButton(
+                            child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                   primary: Theme.of(context).errorColor),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text('Discard changes'),
+                              icon: const Icon(Icons.remove_circle_outline),
+                              label: const FittedBox(child: Text('Discard changes')),
                             ),
                           ),
                         ],

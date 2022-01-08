@@ -61,7 +61,13 @@ class ProductItem extends StatelessWidget {
           ),
           Container(
             height: 40,
-            color: Colors.black.withOpacity(0.3),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              borderRadius: const BorderRadius.only(
+                bottomRight: Radius.circular(5),
+                bottomLeft: Radius.circular(5),
+              ),
+            ),
             child: Row(
               children: [
                 Row(
@@ -75,8 +81,8 @@ class ProductItem extends StatelessWidget {
                           .removeProduct(product.id);
                     },
                     icon: Icon(
-                      Icons.delete,
-                      color: Theme.of(context).shadowColor.withOpacity(0.5),
+                      Icons.clear,
+                      color: Theme.of(context).errorColor,
                       size: 15,
                     ),
                   ),

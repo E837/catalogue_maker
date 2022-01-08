@@ -18,10 +18,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<Projects>(create: (ctx) => Projects()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Catalogue Maker',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-          brightness: Brightness.dark,
+          primarySwatch: Colors.red,
+          brightness: Brightness.light,
         ),
         home: ProjectsOverviewScreen(),
       ),

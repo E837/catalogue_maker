@@ -100,7 +100,7 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton(
+                ElevatedButton.icon(
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.all(Theme.of(context).errorColor),
@@ -108,10 +108,8 @@ class _ProjectSettingsScreenState extends State<ProjectSettingsScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Text('Discard changes'),
-                  ),
+                  icon: const Icon(Icons.remove_circle_outline),
+                  label: const Text('Discard changes'),
                 )
               ],
             ),
